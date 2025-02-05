@@ -1,13 +1,17 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
-group = 'br.com.moreira'
+group = 'br.com.compassuol'
 version = '1.0-SNAPSHOT'
 
 repositories {
@@ -18,16 +22,23 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 test {
     useJUnitPlatform()
 }
 
+application {
+    mainClass = 'br.com.compassuol.Main'
+}
+
 jar {
     manifest {
         attributes(
-                'Main-Class': 'br.com.moreira.Main'
+                'Main-Class': application.mainClass
         )
     }
 }
+
+
