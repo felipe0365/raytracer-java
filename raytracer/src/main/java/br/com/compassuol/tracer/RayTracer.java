@@ -5,18 +5,19 @@ import br.com.compassuol.scene.Scene;
 import br.com.compassuol.scene.Vector3;
 import lombok.Value;
 
+import java.util.Optional;
+
 @Value
 public class RayTracer {
-
     Scene scene;
-    Integer w;
-    Integer h;
+    int w;
+    int h;
 
-    public Color tracedValueAtPixel(int x, int y){
+    public Color tracedValueAtPixel(int x, int y) {
         float xt = ((float) x) / w;
         float yt = ((float) h - y - 1) / h;
 
-        Vector3 top  = Vector3.lerp(
+        Vector3 top = Vector3.lerp(
                 scene.getImagePlane().getTopLeft(),
                 scene.getImagePlane().getTopRight(),
                 xt
@@ -28,15 +29,26 @@ public class RayTracer {
                 xt
         );
 
-        Vector3 point = Vector3.lerp(bottom, top, xt);
-        Ray ray  = new Ray(
-                point, point.minus(scene.getCamera())
+        Vector3 point = Vector3.lerp(bottom, top, yt);
+        Ray ray = new Ray(
+                point,
+                point.minus(scene.getCamera())
         );
 
-        return new Color(
-                (ray.getDirection().getX() + 1.92f) / 3.84f,
-                (ray.getDirection().getY() + 1.08f) / 2.16f,
-                ray.getDirection().getZ() / -4
-        );
+        return colorFromAnyObjectHit(ray);
+    }
+
+    private Color colorFromAnyObjectHit(Ray ray) {
+        return scene
+                .getObjects()
+                .stream()
+                .map(obj -> obj
+                        .earliestIntersection(ray)
+                        .map(t -> new RayCastHit(obj, t)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .min((h0, h1) -> (int) Math.signum(h0.getT() - h1.getT()))
+                .map(hit -> hit.getObject().getMaterial().getKDiffuse())
+                .orElse(Color.BLACK);
     }
 }

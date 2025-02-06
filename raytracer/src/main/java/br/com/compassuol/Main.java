@@ -14,12 +14,12 @@ public class Main {
     static final int H = 1080;
 
     private static final Scene SCENE = new Scene(
-            new Vector3(0,0,2),
+            new Vector3(0, 0, 2),
             new ImagePlane(
-                    new Vector3(-1.92f, 1.08f, -0.5f),
-                    new Vector3(-1.92f, 1.08f, -0.5f),
-                    new Vector3(-1.92f, 1.08f, -0.5f),
-                    new Vector3(-1.92f, 1.08f, -0.5f)
+                    new Vector3(-1.92f,  1.08f, -0.5f),
+                    new Vector3( 1.92f,  1.08f, -0.5f),
+                    new Vector3(-1.92f, -1.08f, -0.5f),
+                    new Vector3( 1.92f, -1.08f, -0.5f)
             ),
             new Color(0.5f, 0.5f, 0.5f),
             Arrays.asList(
@@ -36,16 +36,18 @@ public class Main {
             ),
             Arrays.asList(
                     new Sphere(
-                            new Vector3(0,0, -1.2f), 0.4f, new Material(
-                                new Color(0.2f, 0.1f, 0.1f),
-                                new Color(0.4f, 0.1f, 0.1f),
-                                new Color(0.7f, 0.7f, 0.7f),
-                                new Color(0.9f, 0.5f, 0.5f),
-                                100
+                            new Vector3(0, 0, -1.2f),
+                            0.4f,
+                            new Material(
+                                    new Color(0.2f, 0.1f, 0.1f),
+                                    new Color(0.4f, 0.1f, 0.1f),
+                                    new Color(0.7f, 0.7f, 0.7f),
+                                    new Color(0.9f, 0.5f, 0.5f),
+                                    100
                             )
                     ),
                     new Sphere(
-                            new Vector3(-1,0,0.8f),
+                            new Vector3(-1, 0, -0.8f),
                             0.2f,
                             new Material(
                                     new Color(0.1f, 0.2f, 0.1f),
@@ -56,7 +58,7 @@ public class Main {
                             )
                     ),
                     new Sphere(
-                            new Vector3(1,0f, -0.8f),
+                            new Vector3(1, 0f, -0.8f),
                             0.2f,
                             new Material(
                                     new Color(0.1f, 0.1f, 0.2f),
@@ -93,7 +95,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         RayTracer tracer = new RayTracer(SCENE, W, H);
-
 
         try(Image image = new Image(W, H)) {
             for (int x = 0; x < W; x++) {

@@ -6,11 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
-import br.com.compassuol.image.ImageColor;
 
 
 public class Image implements Closeable {
-
     private final BufferedImage image;
     private final Graphics2D graphics;
 
