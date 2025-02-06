@@ -8,4 +8,8 @@ public class Ray {
 
     Vector3 origin;
     Vector3 direction;
+
+    public Vector3 at(float t) {
+        return origin.plus(direction.times(t));
+    }
 }
