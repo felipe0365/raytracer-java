@@ -3,6 +3,7 @@ package br.com.compassuol;
 import br.com.compassuol.image.Image;
 import br.com.compassuol.image.ImageColor;
 import br.com.compassuol.scene.*;
+import br.com.compassuol.tracer.RayTracer;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -35,7 +36,7 @@ public class Main {
             ),
             Arrays.asList(
                     new Sphere(
-                            new Vector3(0,0 -1.2f), 0.4f, new Material(
+                            new Vector3(0,0, -1.2f), 0.4f, new Material(
                                 new Color(0.2f, 0.1f, 0.1f),
                                 new Color(0.4f, 0.1f, 0.1f),
                                 new Color(0.7f, 0.7f, 0.7f),
