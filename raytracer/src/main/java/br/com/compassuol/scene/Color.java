@@ -17,11 +17,15 @@ public class Color {
         return new Color(r*other.r, g*other.g, b*other.b);
     }
 
+    public Color divide(float num) {
+        return new Color(r/num, g/num, b/num);
+    }
+
     public Color plus(Color other) {
         return new Color(r + other.r, g + other.g, b + other.b);
     }
 
-    public Color claped() {
+    public Color clamped() {
         return new Color(
                 r < 0 ? 0 : r > MAX ? MAX : r,
                 g < 0 ? 0 : g > MAX ? MAX : g,

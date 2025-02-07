@@ -7,7 +7,11 @@ import java.util.Optional;
 
 @Value
 public class RayTracer {
-    private static final int NUM_BOUCES = 3;
+    private static final int NUM_BOUNCES = 3;
+    private static final int NUM_SAMPLES_PER_PIXEL_PER_DIRECTION = 2;
+    private static final int NUM_SAMPLES_PER_PIXEL =
+            NUM_SAMPLES_PER_PIXEL_PER_DIRECTION *
+                    NUM_SAMPLES_PER_PIXEL_PER_DIRECTION;
 
     Scene scene;
     int w;
@@ -17,6 +21,25 @@ public class RayTracer {
         float xt = ((float) x) / w;
         float yt = ((float) h - y - 1) / h;
 
+        float dx = 1f / (w * NUM_SAMPLES_PER_PIXEL_PER_DIRECTION);
+        float dy = 1f / (h * NUM_SAMPLES_PER_PIXEL_PER_DIRECTION);
+
+        Color color = Color.BLACK;
+        for (int xi = 0; xi < NUM_SAMPLES_PER_PIXEL_PER_DIRECTION; xi++) {
+            for (int yi = 0; yi < NUM_SAMPLES_PER_PIXEL_PER_DIRECTION; yi++) {
+                color = color.plus(
+                        tracedValueAtPositionOnImagePlane(
+                                xt + dx * xi,
+                                yt + dy * yi
+                        )
+                );
+            }
+        }
+
+        return color.divide(NUM_SAMPLES_PER_PIXEL).clamped();
+    }
+
+    private Color tracedValueAtPositionOnImagePlane(float xt, float yt) {
         Vector3 top = Vector3.lerp(
                 scene.getImagePlane().getTopLeft(),
                 scene.getImagePlane().getTopRight(),
@@ -35,16 +58,20 @@ public class RayTracer {
                 point.minus(scene.getCamera())
         );
 
-        return colorFromAnyObjectHit(NUM_BOUCES, ray).claped();
+        return colorFromAnyObjectHit(NUM_BOUNCES, ray).clamped();
     }
 
-    private Color colorFromAnyObjectHit(int numBouces,Ray ray) {
+    private Color colorFromAnyObjectHit(int numBounces, Ray ray) {
         return scene
                 .getObjects()
                 .stream()
                 .map(obj -> obj
                         .earliestIntersection(ray)
-                        .map(t -> new RayCastHit(obj, t,obj.normalAt(ray.at(t)))))
+                        .map(t -> new RayCastHit(
+                                obj,
+                                t,
+                                obj.normalAt(ray.at(t))
+                        )))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .min((h0, h1) -> (int) Math.signum(h0.getT() - h1.getT()))
@@ -52,7 +79,7 @@ public class RayTracer {
                     Vector3 point = ray.at(hit.getT());
                     Vector3 view = ray.getDirection().inverted().normalized();
 
-                    Color color = phongLightAtPoint(
+                    Color color = phongLightingAtPoint(
                             scene,
                             hit.getObject(),
                             point,
@@ -60,14 +87,14 @@ public class RayTracer {
                             view
                     );
 
-                    if (numBouces > 0) {
+                    if (numBounces > 0) {
                         Vector3 reflection = hit.getNormal()
                                 .times(view.dot(hit.getNormal()))
                                 .times(2)
                                 .minus(view);
 
                         Color reflectedColor = colorFromAnyObjectHit(
-                                numBouces - 1,
+                                numBounces - 1,
                                 new Ray(point, reflection)
                         );
 
@@ -79,16 +106,19 @@ public class RayTracer {
                                                 .getKReflection()
                                 )
                         );
-
                     }
 
                     return color;
-
                 })
                 .orElse(Color.BLACK);
     }
 
-    private Color phongLightAtPoint(Scene scene, SceneObject object, Vector3 point, Vector3 normal, Vector3 view) {
+    private Color phongLightingAtPoint(
+            Scene scene,
+            SceneObject object,
+            Vector3 point,
+            Vector3 normal,
+            Vector3 view) {
         Material material = object.getMaterial();
 
         Color lightContributions = scene
@@ -111,8 +141,8 @@ public class RayTracer {
                             .getIntensitySpecular()
                             .times(material.getKSpecular())
                             .times((float) Math.pow(
-                                    r.dot(view), material.getAlpha()
-                            ));
+                                    r.dot(view), material.getAlpha()));
+
                     return diffuse.plus(specular);
                 })
                 .reduce(Color.BLACK, Color::plus);
@@ -120,10 +150,15 @@ public class RayTracer {
         Color ambient = material
                 .getKAmbient()
                 .times(scene.getAmbientLight());
+
         return ambient.plus(lightContributions);
     }
 
-    private boolean isPointInShadowFromLight(Scene scene, SceneObject objectToExclude, Vector3 point, Light light) {
+    private boolean isPointInShadowFromLight(
+            Scene scene,
+            SceneObject objectToExclude,
+            Vector3 point,
+            Light light) {
         Vector3 direction = light.getPosition().minus(point);
         Ray shadowRay = new Ray(point, direction);
 
@@ -134,11 +169,12 @@ public class RayTracer {
                 .map(obj -> obj
                         .earliestIntersection(shadowRay)
                         .map(t -> new RayCastHit(
-                                obj, t, null)
+                                obj,
+                                t,
+                                null)
                         ))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(hit -> hit.getT() <= 1);
-
     }
 }
