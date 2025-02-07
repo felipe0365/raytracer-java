@@ -13,6 +13,8 @@ public class Main {
     static final int W = 1920;
     static final int H = 1080;
 
+    private static final Texture EARTH_TEXTURE = readTexture("/earth.jpg");
+
     private static final Scene SCENE = new Scene(
             new Vector3(0, 0, 2),
             new ImagePlane(
@@ -43,7 +45,8 @@ public class Main {
                                     new Color(0.4f, 0.1f, 0.1f),
                                     new Color(0.7f, 0.7f, 0.7f),
                                     new Color(0.9f, 0.5f, 0.5f),
-                                    100
+                                    100,
+                                    EARTH_TEXTURE
                             )
                     ),
                     new Sphere(
@@ -54,7 +57,8 @@ public class Main {
                                     new Color(0.5f, 0.9f, 0.5f),
                                     new Color(0.7f, 0.7f, 0.7f),
                                     new Color(0.3f, 0.5f, 0.2f),
-                                    25
+                                    25,
+                                    null
                             )
                     ),
                     new Sphere(
@@ -65,7 +69,8 @@ public class Main {
                                     new Color(0.5f, 0.5f, 0.9f),
                                     new Color(0.7f, 0.7f, 0.7f),
                                     new Color(0.2f, 0.3f, 0.5f),
-                                    50
+                                    50,
+                                    null
                             )
                     ),
                     new Sphere(
@@ -76,7 +81,8 @@ public class Main {
                                     new Color(0.9f, 0.5f, 0.5f),
                                     new Color(0.7f, 0.7f, 0.7f),
                                     new Color(0.5f, 0.2f, 0.3f),
-                                    50
+                                    50,
+                                    EARTH_TEXTURE
                             )
                     ),
                     new Sphere(
@@ -87,11 +93,21 @@ public class Main {
                                     new Color(0.9f, 0.5f, 0.9f),
                                     new Color(0.7f, 0.7f, 0.7f),
                                     new Color(0.5f, 0.2f, 0.5f),
-                                    50
+                                    50,
+                                    null
                             )
                     )
             )
     );
+
+    @SuppressWarnings("SameParameterValue")
+private static Texture readTexture(String filename){
+        try {
+            return Texture.fromResource(filename);
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         RayTracer tracer = new RayTracer(SCENE, W, H);
